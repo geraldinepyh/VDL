@@ -1,5 +1,11 @@
 {
-    "inputs"  : {},
-    "outputs" : {},
-    "params"  : {}
+    "inputs"  : {
+        "dbName"     : "mindlincnew",
+        "dbVersion"  : "rwe_version1_1"
+    }, 
+    "outputs" : {
+    },
+    "params"  : {
+        "projectPath": "../data/intermediate/RWEWidgets2/comorbid/"
+    }
 }
