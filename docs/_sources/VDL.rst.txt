@@ -1,0 +1,7 @@
+VDL module
+==========
+
+.. automodule:: VDL
+   :members:
+   :undoc-members:
+   :show-inheritance:

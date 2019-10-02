@@ -1,0 +1,19 @@
+modules package
+===============
+
+Subpackages
+-----------
+
+.. toctree::
+
+   modules.celeryCheck
+   modules.module1
+   modules.versionedModule
+
+Module contents
+---------------
+
+.. automodule:: modules
+   :members:
+   :undoc-members:
+   :show-inheritance:
