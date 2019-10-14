@@ -114,8 +114,8 @@ def getPatientCohort(logger):
 def getDemographics(logger, patientList=None):
     
     q = Database()
-    if patientList == None:
-        patientList = pickle.load(open(q.patientsFilter, 'rb'))['PatientID'].unique()
+    # if patientList == None:
+    #     patientList = pickle.load(open(q.patientsFilter, 'rb'))['PatientID'].unique()
     patientTuple = tuple(patientList)
 
     query = f'''
@@ -178,8 +178,9 @@ def getTripsData(logger, visit_list=None):
 def main(logger, resultsDict):
     print('Starting..')
     ## get pt/visit/days data ##
-    data = getPatientCohort()
+    # data = getPatientCohort()
     # data = pickle.load(open('../data/intermediate/filtered_patients.pkl','rb'))
+    data = pickle.load(open('../data/intermediate/cohort_visitsdays.pkl','rb'))
     
     ## get List of unique patients and their demographics data ## 
     patient_list = data.PatientID.unique()
