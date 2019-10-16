@@ -81,26 +81,26 @@ def getPatientCohort(logger):
         rwe_version1_2.pdiagnose pd, rwe_version1_2.typepatient as tp
     where pd.typepatientid = tp.typepatientid
         and pd.patientid in (
-        select
-            tp.patientid
-        from
-            rwe_version1_2.typepatient tp,
-            rwe_version1_2.meds meds, 
-            rwe_version1_2.pdiagnose pd
-        where
-            tp.typepatientid = meds.typepatientid
-            and tp.typepatientid = pd.typepatientid
-        group by
-            tp.patientid,
-            pd.dsmno, 
-            pd.primary_dx,
-            meds.medication
-        having
-            max(tp.days) - min(tp.days) >= 120
-            and count(distinct tp.typepatientid) >= 3 
-            and cast(pd.dsmno as text) in {cohort_dsm}
-            and pd.primary_dx = true
-            )
+            select
+                tp.patientid
+            from
+                rwe_version1_2.typepatient tp,
+                rwe_version1_2.meds meds, 
+                rwe_version1_2.pdiagnose pd
+            where
+                tp.typepatientid = meds.typepatientid
+                and tp.typepatientid = pd.typepatientid
+            group by
+                tp.patientid,
+                pd.dsmno, 
+                pd.primary_dx,
+                meds.medication
+            having
+                max(tp.days) - min(tp.days) >= 120
+                and count(distinct tp.typepatientid) >= 3 
+                and cast(pd.dsmno as text) in {cohort_dsm}
+                and pd.primary_dx = true
+                )
             and cast(pd.dsmno as text) in {cohort_dsm}
             and pd.primary_dx = true
         """
