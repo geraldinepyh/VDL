@@ -93,16 +93,13 @@ def getPatientCohort(logger):
             group by
                 tp.patientid,
                 pd.dsmno, 
-                pd.primary_dx,
                 meds.medication
             having
                 max(tp.days) - min(tp.days) >= 120
                 and count(distinct tp.typepatientid) >= 3 
                 and cast(pd.dsmno as text) in {cohort_dsm}
-                and pd.primary_dx = true
                 )
             and cast(pd.dsmno as text) in {cohort_dsm}
-            and pd.primary_dx = true
         """
     data = q.PullData(cohort_query, 
                     ['PatientID', 'VisitID', 'Days'],
@@ -174,13 +171,29 @@ def getTripsData(logger, visit_list=None):
     
     return data
 
+@lD.log(logBase + '.testQuery')
+def testQuery(logger):
+    q = Database()
+    query = f"""select
+        pd.patientid, count(distinct pd.typepatientid), count(distinct tp.days)
+    from
+        rwe_version1_2.pdiagnose pd, rwe_version1_2.typepatient as tp
+    where pd.typepatientid = tp.typepatientid
+    group by pd.patientid        
+        """
+    data = q.PullData(query, 
+                    columns=['PatientID','VisitsCount','DaysCount'],
+                    saveName='test')
+    print(data.head())
+    return data
+
 @lD.log(logBase + '.main')
 def main(logger, resultsDict):
     print('Starting..')
     ## get pt/visit/days data ##
-    # data = getPatientCohort()
+    data = getPatientCohort()
     # data = pickle.load(open('../data/intermediate/filtered_patients.pkl','rb'))
-    data = pickle.load(open('../data/intermediate/cohort_visitsdays.pkl','rb'))
+    # data = pickle.load(open('../data/intermediate/cohort_visitsdays.pkl','rb'))
     
     ## get List of unique patients and their demographics data ## 
     patient_list = data.PatientID.unique()
