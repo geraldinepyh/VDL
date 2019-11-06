@@ -7,6 +7,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import pickle
+from ast import literal_eval as make_tuple
 
 config = jsonref.load(open('../config/config.json'))
 logBase = config['logging']['logBase'] + '.modules.VDL.getData'
@@ -25,6 +26,7 @@ class Database:
    dbVersion = projConfig['inputs']['dbVersion']
    patientsFilter = '../data/intermediate/filtered_patients.pkl'
    visitsFilter = '../data/intermediate/filtered_visits.pkl'
+   diagnoses_dsmno = pd.read_csv('../data/raw_data/dsmno_regex.csv')
 
    def getData(self, query, columns=None, saveData=True, savePath='../data/intermediate', saveName='temp'):
        
@@ -66,15 +68,9 @@ class Database:
 
 
 @lD.log(logBase + '.getPatientCohort')
-def getPatientCohort(logger):
+def getPatientCohort(logger, disease_cat):
     q = Database()
-    cohort_dsm = ('296.20', '296.21',     '296.22',    '296.23',    '296.24',    '296.25',
-                '296.26',    'F32.0',    'F32.1',    'F32.2',    'F32.4',
-                'F32.5',    'F32.81',    'F32.89',    '296.30',    '296.31',
-                '296.32',    '296.33',    '296.34', '296.35',    '296.36',
-                'F33.0',    'F33.1',    'F33.2',    'F33.40',    'F33.41',
-                'F33.42',    'F33.8',    '311',    'F32.9',    'F33.9',
-                '300.4',    'F34.1')
+    cohort_dsm = make_tuple(diagnoses_dsmno.loc[diagnoses_dsmno['disorders']==disease_cat,'dsmno'].item())
     cohort_query = f"""select
         distinct pd.patientid, pd.typepatientid, tp.days
     from
@@ -137,7 +133,6 @@ def getDemographics(logger, patientList=None):
 @lD.log(logBase + '.getTripsData')
 def getTripsData(logger, visit_list=None):
     '''This function's method of Select Distinct works faster than separate indexing.
-
     '''
     
     q = Database()
@@ -166,6 +161,13 @@ def getTripsData(logger, visit_list=None):
                     ['PatientID','VisitID','Days', 'VisitType', 'CGI','Medication','Dose','Regimen', 'Diagnosis','DSMNo'], 
                     saveName='visits_data')
 
+    # Recode dsmno's into disease categories. 
+    for i, (disorders, counts, regex, dsmno) in diagnosis_dsmno.iterrows():
+        if disorders != 'others':
+            data.loc[data.DSMNo.str.contains(regex), 'DiseaseCat'] = disorders
+
+    data.loc[data.DiseaseCat.str.contains('[0-9]|code'), 'DiseaseCat'] = 'others'
+
     print(data.head())
     print('Data was pulled successfully.')
     
@@ -191,7 +193,8 @@ def testQuery(logger):
 def main(logger, resultsDict):
     print('Starting..')
     ## get pt/visit/days data ##
-    data = getPatientCohort()
+    disease_cat = 'major depressive disorders'
+    data = getPatientCohort(disease_cat)
     # data = pickle.load(open('../data/intermediate/filtered_patients.pkl','rb'))
     # data = pickle.load(open('../data/intermediate/cohort_visitsdays.pkl','rb'))
     
