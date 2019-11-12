@@ -4,7 +4,7 @@ One Paragraph of project description goes here
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+To run the Dash app, enter `cd src` and run `python /modules/VDL/app.py`. It will open up in a browser window. 
 
 ## Prerequisites
 
@@ -30,17 +30,6 @@ At this point you are ready to run programs. However, remember that you will nee
 For activating your virtual environment, type `source env/bin/activate` in the project folder in [bash](https://www.gnu.org/software/bash/) or `source env/bin/activate.fish` if you are using the [fish](https://fishshell.com/) shell.
 For deactivating, just type deactivate in your shell
 
-## Deployment
-
-Add additional notes about how to deploy this on a live system
-
-## Built With
-
- - Python 3.6
-
-## Contributing
-
-Please send in a pull request.
 
 ## Authors
 

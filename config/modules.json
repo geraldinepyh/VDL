@@ -20,8 +20,20 @@
     }, {
         "moduleName" : "getData",
         "path"       : "modules/VDL/getData.py",
+        "execute"    : false,
+        "description": "This runs the queries to extract and save data. Run it once and save locally to reduce computations.",
+        "owner"      : ""
+    }, {
+        "moduleName" : "cleanData",
+        "path"       : "modules/VDL/cleanData.py",
+        "execute"    : false, 
+        "description": "This cleans the locally saved extracted data.",
+        "owner"      : ""
+    }, {
+        "moduleName" : "DaskApp",
+        "path"       : "modules/VDL/app.py",
         "execute"    : true,
-        "description": "",
+        "description": "This runs the Dask app to visualize data on a dashboard.",
         "owner"      : ""
     }
 ]

@@ -22,10 +22,14 @@ def plot_cgi_time(pid, data, colorsIdx, visit_types_list):
                                   colorbar=dict(title='Visit Type',
                                                 tick0=0,
                                                 dtick=1,
+                                                ticks='inside',
+                                                ticklen=20,
                                                 tickvals=[i+1 for i in np.arange(len(visit_types_list))],
                                                ticktext=visit_types_list),
-                                  colorscale='Sunsetdark',
-                                  reversescale=True
+                                  colorscale='Portland',
+                                  reversescale=True,
+                                  cmin = 0.5, 
+                                  cmax = 7.5
                                  ))
 
 def plot_meds_time(pid, data):
@@ -41,10 +45,11 @@ def plot_meds_time(pid, data):
                   x=list(patient_meds_df.Duration),
                   base=list(patient_meds_df.First),
                   orientation='h',
+                  width=0.3,
+                  marker_color='#3f72af'
                   )
 
 # heatmap
-
 def getCGIchangeData(cp_data, period='Week',n_periods=7):
     ## Adds the columns of CGI_Initial, Week and CGI_Change 
     ## to a copy of the comparative population dataset. 
@@ -56,14 +61,15 @@ def getCGIchangeData(cp_data, period='Week',n_periods=7):
     cp_initialCGI = data.loc[data_grouper.idxmin(),['PatientID','CGI']]
     cp_initialCGI.columns = ['PatientID','CGI_Initial']
     data = pd.merge(data, cp_initialCGI, how='left', on='PatientID')
-    data[period] = data_grouper.transform(lambda x: (x - x.min() + 1) / periods[period]).apply(math.floor)
+    period_data = data_grouper.transform(lambda x: (x - x.min() + 1) / periods[period]).apply(math.floor).reset_index(drop=True)
+    data[period] = period_data
     data['CGI_Change'] = data['CGI'] - data['CGI_Initial'] 
     
     return data
 
 # heatmap
 def plot_cgi_change(data, change_in_cgi=True, period='Week', 
-                    col='CGI_Initial', num_periods=100):
+                    col='CGI_Initial', num_periods=20):
     
     if change_in_cgi: 
         min_cgi = -7
@@ -75,31 +81,30 @@ def plot_cgi_change(data, change_in_cgi=True, period='Week',
         plot_title = 'Average CGI Progression'
         values_col = 'CGI'
         colorscale = 'Reds'
-
+    print(data.head())
     data_crosstab = pd.crosstab(index=data[col],
                                   columns=data[period],
                                   values=data[values_col], 
                                   aggfunc='mean').round(1)
-    
+    print(data_crosstab)
+
     fig = go.Figure(data=go.Heatmap(
                    z=data_crosstab.iloc[:,:num_periods],
                    y=np.arange(1,8),
                    x=np.arange(1, 11),
                     zmin=min_cgi,
                     zmax=7,
-                    colorscale=colorscale #, 
+                    colorscale=colorscale#, 
                     # reversescale=True
     ))
     
     fig['layout'] = {'title' : plot_title, 
                      'yaxis':{"title": "Initial CGI"},
-                    'xaxis' : {"title": period}
+                    'xaxis' : {"title": period},
+                    'height' : 300,
+                    'margin':{'l':20, 'r':20, 't':30, 'b':20}
                     }
     return fig
-
-    ## To use:
-    ## x = getCGIchangeData( getComparativePopulation(9209, visits_data),period='Month')
-    ## plotCGIoverTime(x.iloc[:,:100]).show()
 
 # medications boxplot
 def getMedsData(cp_data):
@@ -125,9 +130,11 @@ def plot_meds_box(cp_data, n=5):
         med_name = topNmeds_cgi.index[ix]
         med_pct = pct_imp[ix]
         fig.add_trace(go.Box(x=med_data, name=f'{med_name} ({round(med_pct,1)}%)'))
-    fig['layout'] = {'title':'Treatment Response C.I. of Top {} Prescribed Medications'.format(n),
+    fig['layout'] = {'title':'Treatment Response to Top {} Prescribed Medications'.format(n),
                      'xaxis': {'title':'CGI Score'},
                      'yaxis': {'title':'Medication & % Patients Improved'},
+                     'height' : 300,
+                     'margin':{'l':20, 'r':20, 't':30, 'b':20}
                     }
     return fig
 
